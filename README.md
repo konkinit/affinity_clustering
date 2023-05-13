@@ -1,5 +1,7 @@
-# affinity_clustering
-ENSAE `Eléments logiciels pour le traitement des données massives` project which implements Hierarchical Clustering in a distributed framework
+# Affinity Clustering
+
+ENSAE `Eléments logiciels pour le traitement des données massives` project which implements 
+Affinity Clustering, a hierarchical clustering method, in a distributed framework
 
 ## To Do
 
@@ -7,7 +9,17 @@ ENSAE `Eléments logiciels pour le traitement des données massives` project whi
 - Distributed algos
 - Search Datasets
 
-## Bibliography
+## Getting Started
+
+
+
+## Description
+
+
+
+## Bibliography & Useful resources
+
+[NETWORK REPOSITORY A SCIENTIFIC NETWORK DATA REPOSITORY](https://networkrepository.com/)
 
 ```bib
 @inproceedings{NIPS2017_2e1b24a6,
