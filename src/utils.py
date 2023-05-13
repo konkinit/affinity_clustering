@@ -1,33 +1,28 @@
-from typing import List, Tuple, Set, Union
+from typing import List, Union
 
 
-class Edge:
+def getEdge(edge_str: str) -> List:
+    """Represents an edge in a list format from
+    its string format
+
+    Args:
+        edge_str (str): edge representation in string
+
+    Returns:
+        List: edge represented in a list where the 2 first
+        elements denote the vertoices and the last elmnt
+        the weight
+    """
+    edge_ = edge_str.split(',')
+    return [edge_.u, edge_.v, edge_.weight]
+
+
+class Graph:
+    """a graph initialisator
+    """
     def __init__(
             self,
-            edge_str: str
-    ) -> None:
-        edge_ = edge_str.split(',')
-        self.u = int(edge_[0])
-        self.v = int(edge_[1])
-        self.weight = float(edge_[2])
-
-    def __str__(self) -> str:
-        """String description of an edge
-
-        Returns:
-            str: description
-        """
-        return f"Edge linking {self.u} and {self.v} \
-            with a weight of {self.weight}"
-
-    def _repr(self) -> List:
-        return [self.u, self.v, self.weight]
-
-
-class GraphUtils:
-    def __init__(
-            self,
-            vertices: Union[Set, List]
+            vertices: Union[set, list]
     ) -> None:
         self.items = dict((v, [v]) for v in vertices)
         self.size = dict((v, 1) for v in vertices)
@@ -35,21 +30,22 @@ class GraphUtils:
 
     def merge(
             self,
-            u: Union[int, float, str],
-            v: Union[int, float, str]
+            u_: Union[int, float, str],
+            v_: Union[int, float, str]
     ) -> None:
-        """Merge the components containing u and v
+        """Merge the components containing u_ and v_
 
         Args:
-            u (Union[int, float, str]): a vertex representator
-            v (Union[int, float, str]): a vertex representator
+            u_ (Union[int, float, str]): a vertex representator
+            v_ (Union[int, float, str]): a vertex representator
         """
+        u, v = min(u_, v_), max(u_, v_)
         for node in self.items[u]:
             self.component_repr[node] = v
             self.items[v].append(node)
         self.size[v] += self.size[u]
         del self.size[u]
-        del self.items[v]
+        del self.items[u]
 
     def getComponentRepr(
             self,
@@ -83,7 +79,7 @@ class GraphUtils:
         return list(self.items.values())
 
 
-def MST(graph: List[list]) -> List[Tuple]:
+def MST(graph: List[list]) -> List[tuple]:
     """Return the Minimum Spanning Tree edges
     from the graph
 
@@ -104,7 +100,7 @@ def MST(graph: List[list]) -> List[Tuple]:
     for e in edges:
         vertices.add(e[0])
         vertices.add(e[1])
-    graph_ = GraphUtils(vertices)
+    graph_ = Graph(vertices)
     for e in edges:
         e1_component = graph_.getComponent(e[0])
         e2_component = graph_.getComponent(e[1])

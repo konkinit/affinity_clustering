@@ -1,10 +1,10 @@
 from .utils import (
     Edge,
-    GraphUtils
+    Graph
 )
 
 
 __all__ = [
     "Edge",
-    "GraphUtils"
+    "Graph"
 ]
