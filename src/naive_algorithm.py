@@ -1,8 +1,10 @@
 import sys
+import sys
 import math
 import os
 import heapq
 import itertools
+import numpy as np
 
 
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
@@ -15,7 +17,14 @@ def load_data():
     return 0
 
 
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+def display(current_clusters):
+    clusters = current_clusters.values()
+    for cluster in clusters:
+        cluster["elements"].sort()
+        print(cluster["elements"])
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """                      Hierarchical Clustering Functions                       """
 """                                                                              """
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
@@ -23,8 +32,7 @@ def load_data():
 
 def euclidean_distance(data_point_one, data_point_two):
     """
-    euclidean distance: https://en.wikipedia.org/wiki/Euclidean_distance
-    assume that two data points have same dimension
+    euclidean distance: assume that two data points have same dimension
     """
     size = len(data_point_one)
     result = 0.0
@@ -37,22 +45,22 @@ def euclidean_distance(data_point_one, data_point_two):
     return result
 
 
-def compute_pairwise_distance(dataset):
+def compute_distances(dataset):
     result = []
     dataset_size = len(dataset)
-    for i in range(dataset_size - 1):  # ignore last i
-        for j in range(i + 1, dataset_size):  # ignore duplication
-            dist = euclidean_distance(dataset[i]["data"], dataset[j]["data"])
-            result.append((dist, [dist, [[i], [j]]]))
+    for i in range(dataset_size-1):    # ignore last i
+        for j in range(i+1, dataset_size):     # ignore duplication
+            dist = euclidean_distance(dataset[i], dataset[j])
+            result.append( (dist, [dist, [[i], [j]]]) )
     return result
 
 
 def compute_centroid(dataset, data_points_index):
     size = len(data_points_index)
-    dim = len(dataset.columns)
-    centroid = [0.0] * dim
+    dim = int(np.shape(dataset)[1])
+    centroid = [0.0]*dim
     for idx in data_points_index:
-        dim_data = dataset[idx]["data"]
+        dim_data = dataset[idx]
         for i in range(dim):
             centroid[i] += float(dim_data[i])
     for i in range(dim):
