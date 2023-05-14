@@ -66,3 +66,10 @@ def compute_centroid(dataset, data_points_index):
     for i in range(dim):
         centroid[i] /= size
     return centroid
+
+
+
+
+
+
+
