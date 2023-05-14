@@ -12,22 +12,44 @@ import numpy as np
 """                                                            """
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 
+#function to in initialize clusters
+def set_clusters(dataset):
+    clusters = {}
+    n = len(dataset)
+    for i in range(n):
+        clusters_key = str([i])
+        clusters.setdefault(clusters_key, {})
+        clusters[clusters_key].setdefault("centroid", dataset[i])
+        clusters[clusters_key].setdefault("elements", [i])
+    return clusters
 
-def load_data():
-    return 0
 
+# functions for the priority queue
+def build_priority_queue(distance_list):
+    heapq.heapify(distance_list)
+    heap = distance_list
+    return heap
 
-def display(current_clusters):
-    clusters = current_clusters.values()
-    for cluster in clusters:
-        cluster["elements"].sort()
-        print(cluster["elements"])
+def valid_heap_node(heap_node, old_clusters):
+    pair_data = heap_node[1]
+    for old_cluster in old_clusters:
+        if old_cluster in pair_data:
+            return False
+    return True
+
+def add_heap_entry(heap, new_cluster, current_clusters):
+    for ex_cluster in current_clusters.values():
+        new_heap_entry = []
+        dist = euclidean_distance(ex_cluster["centroid"], new_cluster["centroid"])
+        new_heap_entry.append(dist)
+        new_heap_entry.append([new_cluster["elements"], ex_cluster["elements"]])
+        heapq.heappush(heap, (dist, new_heap_entry))
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """                      Hierarchical Clustering Functions                       """
 """                                                                              """
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" 
 
 
 def euclidean_distance(data_point_one, data_point_two):
