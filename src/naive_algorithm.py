@@ -5,12 +5,14 @@ import os
 import heapq
 import itertools
 import numpy as np
+import collections
 
 
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
-"""                      Helper functions                      """
-"""                                                            """
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""                      Helper functions                              """
+"""                                                                    """
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 #function to in initialize clusters
 def set_clusters(dataset):
@@ -46,10 +48,10 @@ def add_heap_entry(heap, new_cluster, current_clusters):
         heapq.heappush(heap, (dist, new_heap_entry))
 
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""                      Hierarchical Clustering Functions                       """
-"""                                                                              """
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""                      Hierarchical Clustering Functions                 """
+"""                                                                        """
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def euclidean_distance(data_point_one, data_point_two):
@@ -91,7 +93,45 @@ def compute_centroid(dataset, data_points_index):
 
 
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""                      Main Algo                             """
+"""                                                            """
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+def hierarchical_clustering(dataset, num_clusters):
+    """
+    Main Process for hierarchical clustering
 
+    """
+    current_clusters = set_clusters(dataset)
+    old_clusters = []
+    heap = compute_distances(dataset)
+    heap = build_priority_queue(heap)
 
+    while len(current_clusters) > num_clusters:
+        dist, min_item = heapq.heappop(heap)
+        # pair_dist = min_item[0]
+        pair_data = min_item[1]
+
+        # judge if include old cluster
+        if not valid_heap_node(min_item, old_clusters):
+            continue
+
+        new_cluster = {}
+        new_cluster_elements = sum(pair_data, [])
+        new_cluster_cendroid = compute_centroid(dataset, new_cluster_elements)
+        new_cluster_elements.sort()
+        new_cluster.setdefault("centroid", new_cluster_cendroid)
+        new_cluster.setdefault("elements", new_cluster_elements)
+        for pair_item in pair_data:
+            old_clusters.append(pair_item)
+            del current_clusters[str(pair_item)]
+        add_heap_entry(heap, new_cluster, current_clusters)
+        current_clusters[str(new_cluster_elements)] = new_cluster
+    #current_clusters.sort()
+    current_clusters = collections.OrderedDict(current_clusters)
+    final_clusts = {}
+    for i,k in enumerate(current_clusters):
+      final_clusts.setdefault('Cluster '+str(i+1), k)
+    return final_clusts
 

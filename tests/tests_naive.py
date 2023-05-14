@@ -19,8 +19,6 @@ from src.naive_algorithm import euclidean_distance
 from src.naive_algorithm import compute_distances
 from src.naive_algorithm import compute_centroid
 
-
-
 print(euclidean_distance(data[0], data[1]))
 print(euclidean_distance(data[2], data[3]))
 print(euclidean_distance(data[15], data[22]))
@@ -36,3 +34,14 @@ centr1 = compute_centroid(data, [12, 18, 109, 1, 22, 16, 149])
 centr2 = compute_centroid(data, [100, 0, 2, 78, 25, 93, 122])
 print(centr1)
 print(centr2)
+
+
+#set clusters 
+from src.naive_algorithm import set_clusters
+print(set_clusters(data[:10]))
+print()
+
+#Test hierarchical clustering 
+from src.naive_algorithm import hierarchical_clustering
+res = hierarchical_clustering(data, 3)
+print(res)
