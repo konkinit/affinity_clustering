@@ -1,10 +1,12 @@
 from .utils import (
-    Edge,
-    Graph
+    getEdge,
+    GraphComponents,
+    MST,
 )
 
 
 __all__ = [
-    "Edge",
-    "Graph"
+    "getEdge",
+    "GraphComponents",
+    "MST"
 ]

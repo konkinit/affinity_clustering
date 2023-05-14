@@ -14,51 +14,44 @@ def getEdge(edge_str: str) -> List:
         the weight
     """
     edge_ = edge_str.split(',')
-    return [edge_.u, edge_.v, edge_.weight]
+    return [int(edge_[0]), int(edge_[1]), float(edge_[2])]
 
 
-class Graph:
-    """a graph initialisator
+class GraphComponents:
+    """A graph instance
     """
     def __init__(
             self,
             vertices: Union[set, list]
     ) -> None:
         self.items = dict((v, [v]) for v in vertices)
-        self.size = dict((v, 1) for v in vertices)
+        self.num_vertices = dict((v, 1) for v in vertices)
         self.component_repr = dict((v, v) for v in vertices)
 
-    def merge(
-            self,
-            u_: Union[int, float, str],
-            v_: Union[int, float, str]
-    ) -> None:
+    def merge(self, u_: int, v_: int) -> None:
         """Merge the components containing u_ and v_
 
         Args:
-            u_ (Union[int, float, str]): a vertex representator
-            v_ (Union[int, float, str]): a vertex representator
+            u_ (int): a vertex representator
+            v_ (int): a vertex representator
         """
         u, v = min(u_, v_), max(u_, v_)
         for node in self.items[u]:
             self.component_repr[node] = v
             self.items[v].append(node)
-        self.size[v] += self.size[u]
-        del self.size[u]
+        self.num_vertices[v] += self.num_vertices[u]
+        del self.num_vertices[u]
         del self.items[u]
 
-    def getComponentRepr(
-            self,
-            v: Union[int, float, str]
-    ) -> Union[int, float, str]:
+    def getComponentRepr(self, v: int) -> int:
         """Get the reprensatator of the component of
         which vertex v belongs
 
         Args:
-            v (Union[int, float, str]): vertex
+            v (int): vertex
 
         Returns:
-            Union[int, float, str]: component representator
+            int: component representator
         """
         return self.component_repr[v]
 
@@ -84,9 +77,10 @@ def MST(graph: List[list]) -> List[tuple]:
     from the graph
 
     Args:
-        graph (List[list]): he graph in an (?, 3) dim array type
-        where for each row the first two cols and last col
-        represent respectively the vertices and the weights
+        graph (List[list]): the graph in an (?, 3) dim array
+        type where for each row the first two cols and last
+        col represent respectively the vertices and the
+        associated weights
 
     Returns:
         List[Tuple]: minimum spanning tree
@@ -100,7 +94,7 @@ def MST(graph: List[list]) -> List[tuple]:
     for e in edges:
         vertices.add(e[0])
         vertices.add(e[1])
-    graph_ = Graph(vertices)
+    graph_ = GraphComponents(vertices)
     for e in edges:
         e1_component = graph_.getComponent(e[0])
         e2_component = graph_.getComponent(e[1])

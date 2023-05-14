@@ -1,6 +1,7 @@
 # Affinity Clustering
 
-The project leverages the distributed framework to implements Affinity Clustering, a hierarchical clustering method, at scale
+The project leverages the distributed framework to implements Affinity Clustering, a hierarchical
+clustering method, at scale
 
 ## To Do
 
@@ -19,7 +20,9 @@ The project leverages the distributed framework to implements Affinity Clusterin
 
 ## Bibliography & Useful resources
 
-[NETWORK REPOSITORY A SCIENTIFIC NETWORK DATA REPOSITORY](https://networkrepository.com/)
+[Networkrepository: Network data repository](https://networkrepository.com/)
+
+[Netzschleuder](https://networks.skewed.de/)
 
 ```bib
 @inproceedings{NIPS2017_2e1b24a6,
