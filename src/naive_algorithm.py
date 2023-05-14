@@ -68,61 +68,6 @@ def compute_centroid(dataset, data_points_index):
 
 
 
-def hierarchical_clustering(dataset, num_clusters):
-    """
-    Main Process for hierarchical clustering
-
-    """
-    current_clusters = []
-    old_clusters = []
-    heap = compute_distances(dataset)
-    heap = build_priority_queue(heap)
-
-    while len(current_clusters) > num_clusters:
-        dist, min_item = heapq.heappop(heap)
-        # pair_dist = min_item[0]
-        pair_data = min_item[1]
-
-        # judge if include old cluster
-        if not valid_heap_node(min_item, old_clusters):
-            continue
-
-        new_cluster = {}
-        new_cluster_elements = sum(pair_data, [])
-        new_cluster_cendroid = compute_centroid(dataset, new_cluster_elements)
-        new_cluster_elements.sort()
-        new_cluster.setdefault("centroid", new_cluster_cendroid)
-        new_cluster.setdefault("elements", new_cluster_elements)
-        for pair_item in pair_data:
-            old_clusters.append(pair_item)
-            del current_clusters[str(pair_item)]
-        add_heap_entry(heap, new_cluster, current_clusters)
-        current_clusters[str(new_cluster_elements)] = new_cluster
-    current_clusters.sort()
-    return current_clusters
-
-
-def build_priority_queue(distance_list):
-    heapq.heapify(distance_list)
-    heap = distance_list
-    return heap
-
-def valid_heap_node(heap_node, old_clusters):
-    #pair_dist = heap_node[0]
-    pair_data = heap_node[1]
-    for old_cluster in old_clusters:
-        if old_cluster in pair_data:
-            return False
-    return True
-
-def add_heap_entry(heap, new_cluster, current_clusters):
-    for ex_cluster in current_clusters.values():
-        new_heap_entry = []
-        dist = euclidean_distance(ex_cluster["centroid"], new_cluster["centroid"])
-        new_heap_entry.append(dist)
-        new_heap_entry.append([new_cluster["elements"], ex_cluster["elements"]])
-        heapq.heappush(heap, (dist, new_heap_entry))
-
 
 
 
