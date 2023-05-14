@@ -1,13 +1,28 @@
-# affinity_clustering
-ENSAE `Eléments logiciels pour le traitement des données massives` project which implements Hierarchical Clustering in a distributed framework
+# Affinity Clustering
+
+The project leverages the distributed framework to implements Affinity Clustering, a hierarchical
+clustering method, at scale
 
 ## To Do
 
+- Use Python BUILT-IN packages
 - Naive implementation 
 - Distributed algos
-- Search Datasets
+- Search Datasets: get a look at the lnk below ... 
 
-## Bibliography
+## Getting Started
+
+
+
+## Description
+
+
+
+## Bibliography & Useful resources
+
+[Networkrepository: Network data repository](https://networkrepository.com/)
+
+[Netzschleuder](https://networks.skewed.de/)
 
 ```bib
 @inproceedings{NIPS2017_2e1b24a6,

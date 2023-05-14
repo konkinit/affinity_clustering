@@ -7,11 +7,11 @@ import itertools
 import numpy as np
 
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 """                      Helper functions                      """
-"""                                                            """    
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""                                                            """
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+
 
 def load_data():
     return 0
@@ -26,8 +26,9 @@ def display(current_clusters):
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """                      Hierarchical Clustering Functions                       """
-"""                                                                              """    
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""                                                                              """
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+
 
 def euclidean_distance(data_point_one, data_point_two):
     """
@@ -36,8 +37,8 @@ def euclidean_distance(data_point_one, data_point_two):
     size = len(data_point_one)
     result = 0.0
     for i in range(size):
-        f1 = float(data_point_one[i])   # feature for data one
-        f2 = float(data_point_two[i])   # feature for data two
+        f1 = float(data_point_one[i])  # feature for data one
+        f2 = float(data_point_two[i])  # feature for data two
         tmp = f1 - f2
         result += pow(tmp, 2)
     result = math.sqrt(result)
