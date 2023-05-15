@@ -2,7 +2,7 @@ from typing import List, Union
 
 
 def getEdge(edge_str: str) -> List:
-    """Represents an edge in a list format from
+    """Represent an edge in a list format from
     its string format
 
     Args:
@@ -17,7 +17,7 @@ def getEdge(edge_str: str) -> List:
     return [int(edge_[0]), int(edge_[1]), float(edge_[2])]
 
 
-class GraphComponents:
+class Graph:
     """A graph instance
     """
     def __init__(
@@ -94,7 +94,7 @@ def MST(graph: List[list]) -> List[tuple]:
     for e in edges:
         vertices.add(e[0])
         vertices.add(e[1])
-    graph_ = GraphComponents(vertices)
+    graph_ = Graph(vertices)
     for e in edges:
         e1_component = graph_.getComponent(e[0])
         e2_component = graph_.getComponent(e[1])
