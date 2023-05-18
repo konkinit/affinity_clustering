@@ -3,11 +3,14 @@ import sys
 from itertools import groupby
 from math import ceil, log, floor
 from pyspark import SparkContext
+from simplejson import dump
+from time import time
 from typing import List
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
-from src.utils import Graph, getEdge, MST
+from src.config import Distributed_Affinity_Params
+from src.utils import Graph, getEdge, MST, partitioning_, partitioning__
 
 
 class Affinity:
@@ -33,11 +36,8 @@ class Affinity:
                 adjacency_matrix.append([e[0], e])
                 adjacency_matrix.append([e[1], (e[1], e[0], e[2])])
             min_weight_edges = []
-            for _, v_incident_edges in groupby(
-                        adjacency_matrix, lambda x: x[0]):
-                min_weight_edges.append(
-                    min(v_incident_edges, key=lambda x: x[2])
-                )
+            for _, v_incident_edges in groupby(adjacency_matrix, lambda x: x[0]):
+                min_weight_edges.append(min(v_incident_edges, key=lambda x: x[2]))
             for e in min_weight_edges:
                 self.nearest_neighbors[e[0]] = e[1]
             for v in vertices_:
@@ -46,11 +46,14 @@ class Affinity:
 
             updated_edges = []
             for e in self.edges:
-                if self.graph.getComponentRepr(e[0]) != self.graph.getComponentRepr(e[1]):
+                if (
+                    self.graph.getComponentRepr(e[0]) != \
+                    self.graph.getComponentRepr(e[1])
+                ):
                     e_ = (
                         self.graph.getComponentRepr(e[0]),
                         self.graph.getComponentRepr(e[1]),
-                        e[2]
+                        e[2],
                     )
                     updated_edges.append(e_)
             self.edges = updated_edges
@@ -85,25 +88,41 @@ class Affinity:
 
 
 class DistributedAffinity:
-    def __init__(self, params) -> None:
+    def __init__(self, params: Distributed_Affinity_Params) -> None:
         self.sc = SparkContext(appName="Affinity")
         self.params = params
+        self.clusters = []
+        self.compute_time = 0
 
-    def compute(self) -> List:
+    def compute(self) -> None:
+        start = time()
         inp = self.sc.textFile(self.params.inp_path)
         edges = inp.map(lambda x: getEdge(x))
         vertices = edges.flatMap(lambda x: [x[0], x[1]]).distinct()
         n = vertices.count()
         m = edges.count()
         eps = self.params.eps
-        c = ceil(log(m))/ceil(log(n))-1
+        c = ceil(log(m)) / ceil(log(n)) - 1
         while c > eps:
-            k = floor(n**((c-eps)/2))
-            c = ceil(log(m))/ceil(log(n))-1
+            k = floor(n ** ((c - eps) / 2))
+            c = ceil(log(m)) / ceil(log(n)) - 1
             keyedEdges = edges.map(lambda x: (x[0], x))
-            half_partitioning = keyedEdges.groupByKey().flatMap(lambda x: partitioning1(x, k))
-            full_partionining = half_partitioning.groupByKey().flatMap(lambda x: partitioning2(x, k))
+            half_partitioning = keyedEdges.groupByKey().flatMap(
+                lambda x: partitioning_(x, k)
+            )
+            full_partionining = half_partitioning.groupByKey().flatMap(
+                lambda x: partitioning__(x, k)
+            )
             edges = full_partionining.groupByKey().flatMap(lambda x: MST(x[1]))
             m = edges.count()
         AF = Affinity(edges.collect(), self.params.k)
-        return AF.clustering()
+        clusters = AF.clustering()
+        end = time()
+        self.compute_time = end - start
+        self.clusters = clusters
+        with open(self.params.out_path, "w") as f:
+            dump(clusters, f)
+        f.close()
+
+    def inference(self) -> None:
+        pass

@@ -1,3 +1,4 @@
+from random import randrange
 from typing import List, Union
 
 
@@ -97,3 +98,23 @@ def MST(graph: List[list]) -> List[tuple]:
             MST.append(e)
             graph_.merge(e1_component, e2_component)
     return MST
+
+
+def partitioning_(x: List, k: int):
+    edges = x[1]
+    out = []
+    partitionId = randrange(0, k)
+    for e in edges:
+        out.append((e[1], (partitionId, e)))
+    return out
+
+
+def partitioning__(x: List, k: int):
+    edges = x[1]
+    out = []
+    partitionId = randrange(0, k)
+    for e in edges:
+        firstPartiton = e[0]
+        edge = e[1]
+        out.append(((firstPartiton, partitionId), edge))
+    return out
