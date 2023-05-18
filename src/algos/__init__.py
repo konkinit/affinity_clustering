@@ -1,10 +1,4 @@
-from .distributed_ import (
-    DistributedAffinity,
-    Affinity
-)
+from .distributed_ import DistributedAffinity, Affinity
 
 
-__all__ = [
-    "DistributedAffinity",
-    "Affinity"
-]
+__all__ = ["DistributedAffinity", "Affinity"]

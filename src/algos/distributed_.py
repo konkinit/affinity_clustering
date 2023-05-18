@@ -1,5 +1,6 @@
 import os
 import sys
+import findspark
 from itertools import groupby
 from math import ceil, log, floor
 from pyspark import SparkContext
@@ -13,6 +14,9 @@ from src.config import Distributed_Affinity_Params
 from src.utils import Graph, getEdge, MST, partitioning_, partitioning__
 
 
+findspark.init()
+
+
 class Affinity:
     def __init__(self, graph_, k):
         self.k = k
@@ -24,43 +28,6 @@ class Affinity:
         self.graph = Graph(self.vertices)
         self.nearest_neighbors = {}
         self.merged = set()
-
-    def clustering(self) -> List:
-        n_clusters = len(self.vertices)
-        vertices_ = self.vertices.copy()
-        while n_clusters > self.k:
-            self.nearest_neighbors = {}
-            self.merged = set()
-            adjacency_matrix = []
-            for e in self.edges:
-                adjacency_matrix.append([e[0], e])
-                adjacency_matrix.append([e[1], (e[1], e[0], e[2])])
-            min_weight_edges = []
-            for _, v_incident_edges in groupby(adjacency_matrix, lambda x: x[0]):
-                min_weight_edges.append(min(v_incident_edges, key=lambda x: x[2]))
-            for e in min_weight_edges:
-                self.nearest_neighbors[e[0]] = e[1]
-            for v in vertices_:
-                if v not in self.merged:
-                    self.merge_nearest_neighbor(v)
-
-            updated_edges = []
-            for e in self.edges:
-                if (
-                    self.graph.getComponentRepr(e[0]) != \
-                    self.graph.getComponentRepr(e[1])
-                ):
-                    e_ = (
-                        self.graph.getComponentRepr(e[0]),
-                        self.graph.getComponentRepr(e[1]),
-                        e[2],
-                    )
-                    updated_edges.append(e_)
-            self.edges = updated_edges
-            self.vertices = set(self.graph.getItems())
-            n_clusters = len(self.graph.getItems())
-
-        return self.graph.getPartitions()
 
     def merge_nearest_neighbor(self, vertex: int) -> None:
         """Merge a vertex with its nearest neighbor
@@ -86,17 +53,56 @@ class Affinity:
             self.merged.add(vertex)
         return
 
+    def clustering(self) -> List:
+        """Compute clustering"""
+        n_clusters = len(self.vertices)
+        vertices_ = self.vertices
+        while n_clusters > self.k:
+            self.nearest_neighbors = {}
+            self.merged = set()
+            adjacency_matrix = []
+            for e in self.edges:
+                adjacency_matrix.append([e[0], e])
+                adjacency_matrix.append([e[1], (e[1], e[0], e[2])])
+            min_weight_edges = []
+            for _, v_incident_edges in groupby(adjacency_matrix, lambda x: x[0]):
+                edge_group = [e[1] for e in v_incident_edges]
+                min_weight_edges.append(min(edge_group, key=lambda x: x[2]))
+            for e in min_weight_edges:
+                self.nearest_neighbors[e[0]] = e[1]
+            for v in vertices_:
+                if v not in self.merged:
+                    self.merge_nearest_neighbor(v)
+
+            updated_edges = []
+            for e in self.edges:
+                if self.graph.getComponentRepr(e[0]) != self.graph.getComponentRepr(
+                    e[1]
+                ):
+                    e_ = (
+                        self.graph.getComponentRepr(e[0]),
+                        self.graph.getComponentRepr(e[1]),
+                        e[2],
+                    )
+                    updated_edges.append(e_)
+            self.edges = updated_edges
+            vertices_ = set(self.graph.getItems())
+            n_clusters = len(self.graph.getItems())
+
+        return self.graph.getPartitions()
+
 
 class DistributedAffinity:
     def __init__(self, params: Distributed_Affinity_Params) -> None:
-        self.sc = SparkContext(appName="Affinity")
+        self.sc = SparkContext(appName=params.sc_name)
         self.params = params
         self.clusters = []
-        self.compute_time = 0
+        self.compute_time = 0.0
+        self.k = params.k
 
     def compute(self) -> None:
         start = time()
-        inp = self.sc.textFile(self.params.inp_path)
+        inp = self.sc.textFile(f"./data/inputs/{self.params.data_name}.txt")
         edges = inp.map(lambda x: getEdge(x))
         vertices = edges.flatMap(lambda x: [x[0], x[1]]).distinct()
         n = vertices.count()
@@ -120,8 +126,10 @@ class DistributedAffinity:
         end = time()
         self.compute_time = end - start
         self.clusters = clusters
-        with open(self.params.out_path, "w") as f:
-            dump(clusters, f)
+        cluster_ = [f"Cluster_{str(i).zfill(2)}" for i in range(self.k)]
+        cluster_dict = dict(zip(cluster_, clusters))
+        with open(f"./data/outputs/{self.params.data_name}.json", "w") as f:
+            dump(cluster_dict, f)
         f.close()
 
     def inference(self) -> None:

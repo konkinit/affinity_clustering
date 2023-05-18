@@ -3,12 +3,6 @@
 The project leverages the distributed framework to implements Affinity Clustering, a hierarchical
 clustering method, at scale
 
-## To Do
-
-- Use Python BUILT-IN packages
-- Naive implementation 
-- Distributed algos
-- Search Datasets: get a look at the lnk below ... 
 
 ## Getting Started
 

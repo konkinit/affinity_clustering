@@ -1,5 +1,94 @@
+from math import sqrt
+from heapq import heapify, heappush
+import numpy as np
 from random import randrange
 from typing import List, Union
+
+
+def set_clusters(dataset):
+    """Initialize clusters"""
+    clusters = {}
+    n = len(dataset)
+    for i in range(n):
+        clusters_key = str([i])
+        clusters.setdefault(clusters_key, {})
+        clusters[clusters_key].setdefault("centroid", dataset[i])
+        clusters[clusters_key].setdefault("elements", [i])
+    return clusters
+
+
+def build_priority_queue(distance_list):
+    """Build the priority queue"""
+    heapify(distance_list)
+    heap = distance_list
+    return heap
+
+
+def valid_heap_node(heap_node, old_clusters):
+    pair_data = heap_node[1]
+    for old_cluster in old_clusters:
+        if old_cluster in pair_data:
+            return False
+    return True
+
+
+def add_heap_entry(heap, new_cluster, current_clusters):
+    for ex_cluster in current_clusters.values():
+        new_heap_entry = []
+        dist = euclidean_distance(ex_cluster["centroid"], new_cluster["centroid"])
+        new_heap_entry.append(dist)
+        new_heap_entry.append([new_cluster["elements"], ex_cluster["elements"]])
+        heappush(heap, (dist, new_heap_entry))
+
+
+def euclidean_distance(data_point_one, data_point_two):
+    """Evaluate the euclidean distance with assumption"""
+    assert len(data_point_one) == len(data_point_two)
+    size = len(data_point_one)
+    result = 0.0
+    for i in range(size):
+        f1 = float(data_point_one[i])
+        f2 = float(data_point_two[i])
+        tmp = f1 - f2
+        result += pow(tmp, 2)
+    result = sqrt(result)
+    return result
+
+
+def compute_distances(dataset):
+    """Compute pairwise distance"""
+    result = []
+    dataset_size = len(dataset)
+    for i in range(dataset_size - 1):  # ignore last i
+        for j in range(i + 1, dataset_size):  # ignore duplication
+            dist = euclidean_distance(dataset[i], dataset[j])
+            result.append((dist, [dist, [[i], [j]]]))
+    return result
+
+
+def compute_centroid(dataset, data_points_index):
+    """Compute cetroid"""
+    size = len(data_points_index)
+    dim = int(np.shape(dataset)[1])
+    centroid = [0.0] * dim
+    for idx in data_points_index:
+        dim_data = dataset[idx]
+        for i in range(dim):
+            centroid[i] += float(dim_data[i])
+    for i in range(dim):
+        centroid[i] /= size
+    return centroid
+
+
+def getMetadataSats(graph):
+    """Get graph metadat infos"""
+    vertices = set()
+    for e in graph:
+        vertices.add(getEdge(e)[0])
+        vertices.add(getEdge(e)[1])
+    n = len(vertices)
+    m = len(graph)
+    return n, m
 
 
 def getEdge(edge_str: str) -> List:
@@ -14,7 +103,7 @@ def getEdge(edge_str: str) -> List:
         elements denote the vertoices and the last elmnt
         the weight
     """
-    edge_ = edge_str.split(",")
+    edge_ = edge_str.split(" ")
     return [int(edge_[0]), int(edge_[1]), float(edge_[2])]
 
 
@@ -91,8 +180,8 @@ def MST(graph: List[list]) -> List[tuple]:
         vertices.add(e[1])
     graph_ = Graph(vertices)
     for e in edges:
-        e1_component = graph_.getComponent(e[0])
-        e2_component = graph_.getComponent(e[1])
+        e1_component = graph_.getComponentRepr(e[0])
+        e2_component = graph_.getComponentRepr(e[1])
 
         if e1_component != e2_component:
             MST.append(e)
