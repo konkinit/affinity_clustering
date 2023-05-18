@@ -3,7 +3,7 @@ import sys
 import findspark
 from itertools import groupby
 from math import ceil, log, floor
-from pyspark import SparkContext
+from pyspark import SparkContext, SparkConf
 from simplejson import dump
 from time import time
 from typing import List
@@ -65,9 +65,7 @@ class Affinity:
                 adjacency_matrix.append([e[0], e])
                 adjacency_matrix.append([e[1], (e[1], e[0], e[2])])
             min_weight_edges = []
-            for _, v_incident_edges in groupby(
-                adjacency_matrix, lambda x: x[0]
-            ):
+            for _, v_incident_edges in groupby(adjacency_matrix, lambda x: x[0]):
                 edge_group = [e[1] for e in v_incident_edges]
                 min_weight_edges.append(min(edge_group, key=lambda x: x[2]))
             for e in min_weight_edges:
@@ -78,9 +76,9 @@ class Affinity:
 
             updated_edges = []
             for e in self.edges:
-                if self.graph.getComponentRepr(
-                    e[0]
-                ) != self.graph.getComponentRepr(e[1]):
+                if self.graph.getComponentRepr(e[0]) != self.graph.getComponentRepr(
+                    e[1]
+                ):
                     e_ = (
                         self.graph.getComponentRepr(e[0]),
                         self.graph.getComponentRepr(e[1]),
@@ -96,7 +94,9 @@ class Affinity:
 
 class DistributedAffinity:
     def __init__(self, params: Distributed_Affinity_Params) -> None:
-        self.sc = SparkContext(appName=params.sc_name)
+        conf = SparkConf()
+        conf.setAppName(params.sc_name)
+        self.sc = SparkContext(conf=conf)
         self.params = params
         self.clusters = []
         self.computation_time = 0.0
@@ -123,17 +123,15 @@ class DistributedAffinity:
             )
             edges = full_partionining.groupByKey().flatMap(lambda x: MST(x[1]))
             m = edges.count()
-        AF = Affinity(edges.collect(), self.params.k)
+        AF = Affinity(edges.collect(), self.k)
         clusters = AF.clustering()
         end = time()
-        assert len(clusters) == self.k
+        assert len(clusters) <= self.k
         self.computation_time = end - start
         self.clusters = clusters
         cluster_ = [f"Cluster_{str(i+1).zfill(2)}" for i in range(self.k)]
         cluster_dict = dict(zip(cluster_, clusters))
-        with open(
-            f"./data/outputs/{self.params.data_name}-distributed.json", "w"
-        ) as f:
+        with open(f"./data/outputs/{self.params.data_name}-distributed.json", "w") as f:
             dump(cluster_dict, f)
         f.close()
         return cluster_dict

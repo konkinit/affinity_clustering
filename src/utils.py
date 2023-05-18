@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, log
 from heapq import heapify, heappush
 import numpy as np
 from random import randrange
@@ -36,7 +36,8 @@ def add_heap_entry(heap, new_cluster, current_clusters):
     for ex_cluster in current_clusters.values():
         new_heap_entry = []
         dist = euclidean_distance(
-            ex_cluster["centroid"], new_cluster["centroid"]
+            ex_cluster["centroid"],
+            new_cluster["centroid"]
         )
         new_heap_entry.append(dist)
         new_heap_entry.append(
@@ -92,7 +93,8 @@ def getMetadataSats(graph):
         vertices.add(getEdge(e)[1])
     n = len(vertices)
     m = len(graph)
-    return n, m
+    c = log(m) / log(n) - 1
+    return n, m, c
 
 
 def getEdge(edge_str: str) -> List:
@@ -211,3 +213,23 @@ def partitioning__(x: List, k: int):
         edge = e[1]
         out.append(((firstPartiton, partitionId), edge))
     return out
+
+
+def tabular2network(dataset_name: str) -> None:
+    """Read a tabular dataset and convert it to network dataset
+    """
+    with open(f"./data/inputs/{dataset_name}-tab.txt", "r") as f:
+        graph = list(
+            map(
+                lambda x: list(map(float, x)),
+                [e.strip("\n").split(" ") for e in f.readlines()],
+            )
+        )
+    f.close()
+
+    with open(f"./data/inputs/{dataset_name}-net.txt", "w") as file:
+        for i in range(len(graph) - 1):
+            for j in range(i + 1, len(graph)):
+                dij = round(euclidean_distance(graph[i], graph[j]), 3)
+                file.write(f"{i+1} {j+1} {dij}\n")
+    file.close()

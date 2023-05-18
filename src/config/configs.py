@@ -10,6 +10,12 @@ class Distributed_Affinity_Params:
 
 
 @dataclass
+class Affinity_Params:
+    data_name: str
+    k: int
+
+
+@dataclass
 class Naive_Algo_Params:
     data_name: str
     k: int

@@ -25,13 +25,14 @@ class NaiveHierarchical:
         self.computation_time = 0.0
 
     def compute(self):
-        """Compute hierarchical clustering naively
-        """
+        """Compute hierarchical clustering naively"""
         with open(f"./data/inputs/{self.params.data_name}.txt", "r") as f:
-            graph = list(map(
-                lambda x: list(map(float, x)),
-                [e.strip("\n").split(" ") for e in f.readlines()]
-            ))
+            graph = list(
+                map(
+                    lambda x: list(map(float, x)),
+                    [e.strip("\n").split(" ") for e in f.readlines()],
+                )
+            )
         f.close()
         current_clusters = set_clusters(graph)
         old_clusters = []
@@ -47,10 +48,7 @@ class NaiveHierarchical:
 
             new_cluster = {}
             new_cluster_elements = sum(pair_data, [])
-            new_cluster_cendroid = compute_centroid(
-                graph,
-                new_cluster_elements
-            )
+            new_cluster_cendroid = compute_centroid(graph, new_cluster_elements)
             new_cluster_elements.sort()
             new_cluster.setdefault("centroid", new_cluster_cendroid)
             new_cluster.setdefault("elements", new_cluster_elements)
@@ -64,10 +62,9 @@ class NaiveHierarchical:
         current_clusters = OrderedDict(current_clusters)
         final_clusts = {}
         for i, clust in enumerate(current_clusters):
-            final_clusts.setdefault("Cluster " + str(i+1).zfill(2), clust)
+            final_clusts.setdefault("Cluster " + str(i + 1).zfill(2), clust)
         with open(
-            f"./data/outputs/{self.params.data_name.split('-')[0]}-naive.json",
-            "w"
+            f"./data/outputs/{self.params.data_name.split('-')[0]}-naive.json", "w"
         ) as f:
             dump(final_clusts, f)
         f.close()
