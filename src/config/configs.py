@@ -11,4 +11,5 @@ class Distributed_Affinity_Params:
 
 @dataclass
 class Naive_Algo_Params:
+    data_name: str
     k: int

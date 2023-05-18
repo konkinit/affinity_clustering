@@ -35,9 +35,13 @@ def valid_heap_node(heap_node, old_clusters):
 def add_heap_entry(heap, new_cluster, current_clusters):
     for ex_cluster in current_clusters.values():
         new_heap_entry = []
-        dist = euclidean_distance(ex_cluster["centroid"], new_cluster["centroid"])
+        dist = euclidean_distance(
+            ex_cluster["centroid"], new_cluster["centroid"]
+        )
         new_heap_entry.append(dist)
-        new_heap_entry.append([new_cluster["elements"], ex_cluster["elements"]])
+        new_heap_entry.append(
+            [new_cluster["elements"], ex_cluster["elements"]]
+        )
         heappush(heap, (dist, new_heap_entry))
 
 

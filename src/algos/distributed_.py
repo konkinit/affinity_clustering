@@ -99,7 +99,7 @@ class DistributedAffinity:
         self.sc = SparkContext(appName=params.sc_name)
         self.params = params
         self.clusters = []
-        self.compute_time = 0.0
+        self.computation_time = 0.0
         self.k = params.k
 
     def compute(self) -> None:
@@ -127,7 +127,7 @@ class DistributedAffinity:
         clusters = AF.clustering()
         end = time()
         assert len(clusters) == self.k
-        self.compute_time = end - start
+        self.computation_time = end - start
         self.clusters = clusters
         cluster_ = [f"Cluster_{str(i+1).zfill(2)}" for i in range(self.k)]
         cluster_dict = dict(zip(cluster_, clusters))
@@ -136,6 +136,7 @@ class DistributedAffinity:
         ) as f:
             dump(cluster_dict, f)
         f.close()
+        return cluster_dict
 
     def inference(self) -> None:
         pass

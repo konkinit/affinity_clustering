@@ -22,20 +22,23 @@ class NaiveHierarchical:
     def __init__(self, params: Naive_Algo_Params) -> None:
         self.params = params
         self.k = params.k
-        self.compute_time = 0.0
+        self.computation_time = 0.0
 
     def compute(self):
         """Compute hierarchical clustering naively
         """
-        with open(f"./data/inputs/{self.params.data_name}.txt", "w") as f:
-            graph = f.readlines()
+        with open(f"./data/inputs/{self.params.data_name}.txt", "r") as f:
+            graph = list(map(
+                lambda x: list(map(float, x)),
+                [e.strip("\n").split(" ") for e in f.readlines()]
+            ))
         f.close()
         current_clusters = set_clusters(graph)
         old_clusters = []
         heap = compute_distances(graph)
         heap = build_priority_queue(heap)
         start = time()
-        while len(current_clusters) > self.params.k:
+        while len(current_clusters) > self.k:
             _, min_item = heappop(heap)
             pair_data = min_item[1]
             # judge if include old cluster
@@ -57,13 +60,13 @@ class NaiveHierarchical:
             add_heap_entry(heap, new_cluster, current_clusters)
             current_clusters[str(new_cluster_elements)] = new_cluster
         end = time()
-        self.compute_time = end - start
+        self.computation_time = end - start
         current_clusters = OrderedDict(current_clusters)
         final_clusts = {}
         for i, clust in enumerate(current_clusters):
             final_clusts.setdefault("Cluster " + str(i+1).zfill(2), clust)
         with open(
-            f"./data/outputs/{self.params.data_name}-naive.json",
+            f"./data/outputs/{self.params.data_name.split('-')[0]}-naive.json",
             "w"
         ) as f:
             dump(final_clusts, f)
