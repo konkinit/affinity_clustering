@@ -1,11 +1,13 @@
 import os
 import sys
 from itertools import groupby
+from math import ceil, log, floor
+from pyspark import SparkContext
 from typing import List
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
-from src.utils import Graph
+from src.utils import Graph, getEdge, MST
 
 
 class Affinity:
@@ -42,6 +44,19 @@ class Affinity:
                 if v not in self.merged:
                     self.merge_nearest_neighbor(v)
 
+            updated_edges = []
+            for e in self.edges:
+                if self.graph.getComponentRepr(e[0]) != self.graph.getComponentRepr(e[1]):
+                    e_ = (
+                        self.graph.getComponentRepr(e[0]),
+                        self.graph.getComponentRepr(e[1]),
+                        e[2]
+                    )
+                    updated_edges.append(e_)
+            self.edges = updated_edges
+            self.vertices = set(self.graph.getItems())
+            n_clusters = len(self.graph.getItems())
+
         return self.graph.getPartitions()
 
     def merge_nearest_neighbor(self, vertex: int) -> None:
@@ -51,7 +66,7 @@ class Affinity:
             vertex (int): vertex
         """
         if vertex in self.merged:
-            pass
+            return
         if self.nearest_neighbors[self.nearest_neighbors[vertex]] == vertex:
             self.graph.merge(
                 self.graph.getComponentRepr(vertex),
@@ -66,3 +81,29 @@ class Affinity:
                 self.graph.getComponentRepr(self.nearest_neighbors[vertex]),
             )
             self.merged.add(vertex)
+        return
+
+
+class DistributedAffinity:
+    def __init__(self, params) -> None:
+        self.sc = SparkContext(appName="Affinity")
+        self.params = params
+
+    def compute(self) -> List:
+        inp = self.sc.textFile(self.params.inp_path)
+        edges = inp.map(lambda x: getEdge(x))
+        vertices = edges.flatMap(lambda x: [x[0], x[1]]).distinct()
+        n = vertices.count()
+        m = edges.count()
+        eps = self.params.eps
+        c = ceil(log(m))/ceil(log(n))-1
+        while c > eps:
+            k = floor(n**((c-eps)/2))
+            c = ceil(log(m))/ceil(log(n))-1
+            keyedEdges = edges.map(lambda x: (x[0], x))
+            half_partitioning = keyedEdges.groupByKey().flatMap(lambda x: partitioning1(x, k))
+            full_partionining = half_partitioning.groupByKey().flatMap(lambda x: partitioning2(x, k))
+            edges = full_partionining.groupByKey().flatMap(lambda x: MST(x[1]))
+            m = edges.count()
+        AF = Affinity(edges.collect(), self.params.k)
+        return AF.clustering()

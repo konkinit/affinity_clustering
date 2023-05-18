@@ -8,13 +8,13 @@ import numpy as np
 import collections
 
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 """                      Helper functions                              """
 """                                                                    """
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 
-#function to in initialize clusters
+
+# function to in initialize clusters
 def set_clusters(dataset):
     clusters = {}
     n = len(dataset)
@@ -32,12 +32,14 @@ def build_priority_queue(distance_list):
     heap = distance_list
     return heap
 
+
 def valid_heap_node(heap_node, old_clusters):
     pair_data = heap_node[1]
     for old_cluster in old_clusters:
         if old_cluster in pair_data:
             return False
     return True
+
 
 def add_heap_entry(heap, new_cluster, current_clusters):
     for ex_cluster in current_clusters.values():
@@ -48,10 +50,10 @@ def add_heap_entry(heap, new_cluster, current_clusters):
         heapq.heappush(heap, (dist, new_heap_entry))
 
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 """                      Hierarchical Clustering Functions                 """
 """                                                                        """
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 
 
 def euclidean_distance(data_point_one, data_point_two):
@@ -72,17 +74,17 @@ def euclidean_distance(data_point_one, data_point_two):
 def compute_distances(dataset):
     result = []
     dataset_size = len(dataset)
-    for i in range(dataset_size-1):    # ignore last i
-        for j in range(i+1, dataset_size):     # ignore duplication
+    for i in range(dataset_size - 1):  # ignore last i
+        for j in range(i + 1, dataset_size):  # ignore duplication
             dist = euclidean_distance(dataset[i], dataset[j])
-            result.append( (dist, [dist, [[i], [j]]]) )
+            result.append((dist, [dist, [[i], [j]]]))
     return result
 
 
 def compute_centroid(dataset, data_points_index):
     size = len(data_points_index)
     dim = int(np.shape(dataset)[1])
-    centroid = [0.0]*dim
+    centroid = [0.0] * dim
     for idx in data_points_index:
         dim_data = dataset[idx]
         for i in range(dim):
@@ -92,11 +94,11 @@ def compute_centroid(dataset, data_points_index):
     return centroid
 
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 """                      Main Algo                             """
 """                                                            """
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+
 
 def hierarchical_clustering(dataset, num_clusters):
     """
@@ -128,10 +130,9 @@ def hierarchical_clustering(dataset, num_clusters):
             del current_clusters[str(pair_item)]
         add_heap_entry(heap, new_cluster, current_clusters)
         current_clusters[str(new_cluster_elements)] = new_cluster
-    #current_clusters.sort()
+    # current_clusters.sort()
     current_clusters = collections.OrderedDict(current_clusters)
     final_clusts = {}
-    for i,k in enumerate(current_clusters):
-      final_clusts.setdefault('Cluster '+str(i+1), k)
+    for i, k in enumerate(current_clusters):
+        final_clusts.setdefault("Cluster " + str(i + 1), k)
     return final_clusts
-

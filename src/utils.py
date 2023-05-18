@@ -13,17 +13,14 @@ def getEdge(edge_str: str) -> List:
         elements denote the vertoices and the last elmnt
         the weight
     """
-    edge_ = edge_str.split(',')
+    edge_ = edge_str.split(",")
     return [int(edge_[0]), int(edge_[1]), float(edge_[2])]
 
 
 class Graph:
-    """A graph instance
-    """
-    def __init__(
-            self,
-            vertices: Union[set, list]
-    ) -> None:
+    """A graph instance"""
+
+    def __init__(self, vertices: Union[set, list]) -> None:
         self.items = dict((v, [v]) for v in vertices)
         self.num_vertices = dict((v, 1) for v in vertices)
         self.component_repr = dict((v, v) for v in vertices)
@@ -86,10 +83,7 @@ def MST(graph: List[list]) -> List[tuple]:
         List[Tuple]: minimum spanning tree
     """
     MST = []
-    edges = sorted(
-        [(e[0], e[1], e[2]) for e in graph],
-        key=lambda x: x[2]
-    )
+    edges = sorted([(e[0], e[1], e[2]) for e in graph], key=lambda x: x[2])
     vertices = set()
     for e in edges:
         vertices.add(e[0])

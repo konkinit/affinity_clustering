@@ -5,8 +5,4 @@ from .utils import (
 )
 
 
-__all__ = [
-    "getEdge",
-    "Graph",
-    "MST"
-]
+__all__ = ["getEdge", "Graph", "MST"]
