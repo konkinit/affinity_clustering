@@ -2,46 +2,71 @@ import os
 import sys
 from collections import OrderedDict
 from heapq import heappop
+from simplejson import dump
+from time import time
 
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
-from src.config import Distributed_Affinity_Params
-from src.utils import Graph, getEdge, MST, partitioning_, partitioning__
+from src.config import Naive_Algo_Params
+from src.utils import (
+    set_clusters,
+    build_priority_queue,
+    valid_heap_node,
+    add_heap_entry,
+    compute_distances,
+    compute_centroid,
+)
 
 
-def hierarchical_clustering(dataset, num_clusters):
-    """
-    Main Process for hierarchical clustering
+class NaiveHierarchical:
+    def __init__(self, params: Naive_Algo_Params) -> None:
+        self.params = params
+        self.k = params.k
+        self.compute_time = 0.0
 
-    """
-    current_clusters = set_clusters(dataset)
-    old_clusters = []
-    heap = compute_distances(dataset)
-    heap = build_priority_queue(heap)
+    def compute(self):
+        """Compute hierarchical clustering naively
+        """
+        with open(f"./data/inputs/{self.params.data_name}.txt", "w") as f:
+            graph = f.readlines()
+        f.close()
+        current_clusters = set_clusters(graph)
+        old_clusters = []
+        heap = compute_distances(graph)
+        heap = build_priority_queue(heap)
+        start = time()
+        while len(current_clusters) > self.params.k:
+            _, min_item = heappop(heap)
+            pair_data = min_item[1]
+            # judge if include old cluster
+            if not valid_heap_node(min_item, old_clusters):
+                continue
 
-    while len(current_clusters) > num_clusters:
-        dist, min_item = heappop(heap)
-        # pair_dist = min_item[0]
-        pair_data = min_item[1]
+            new_cluster = {}
+            new_cluster_elements = sum(pair_data, [])
+            new_cluster_cendroid = compute_centroid(
+                graph,
+                new_cluster_elements
+            )
+            new_cluster_elements.sort()
+            new_cluster.setdefault("centroid", new_cluster_cendroid)
+            new_cluster.setdefault("elements", new_cluster_elements)
+            for pair_item in pair_data:
+                old_clusters.append(pair_item)
+                del current_clusters[str(pair_item)]
+            add_heap_entry(heap, new_cluster, current_clusters)
+            current_clusters[str(new_cluster_elements)] = new_cluster
+        end = time()
+        self.compute_time = end - start
+        current_clusters = OrderedDict(current_clusters)
+        final_clusts = {}
+        for i, clust in enumerate(current_clusters):
+            final_clusts.setdefault("Cluster " + str(i+1).zfill(2), clust)
+        with open(
+            f"./data/outputs/{self.params.data_name}-naive.json",
+            "w"
+        ) as f:
+            dump(final_clusts, f)
+        f.close()
 
-        # judge if include old cluster
-        if not valid_heap_node(min_item, old_clusters):
-            continue
-
-        new_cluster = {}
-        new_cluster_elements = sum(pair_data, [])
-        new_cluster_cendroid = compute_centroid(dataset, new_cluster_elements)
-        new_cluster_elements.sort()
-        new_cluster.setdefault("centroid", new_cluster_cendroid)
-        new_cluster.setdefault("elements", new_cluster_elements)
-        for pair_item in pair_data:
-            old_clusters.append(pair_item)
-            del current_clusters[str(pair_item)]
-        add_heap_entry(heap, new_cluster, current_clusters)
-        current_clusters[str(new_cluster_elements)] = new_cluster
-    # current_clusters.sort()
-    current_clusters = OrderedDict(current_clusters)
-    final_clusts = {}
-    for i, k in enumerate(current_clusters):
-        final_clusts.setdefault("Cluster " + str(i + 1), k)
-    return final_clusts
+        return final_clusts
