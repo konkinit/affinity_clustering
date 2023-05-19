@@ -242,6 +242,7 @@ def check_pair_togetherness(u: int, v: int, partitions: List):
     togetherness = 0
     for cluster in partitions:
         togetherness += int((u in cluster) & (v in cluster))
+    assert (togetherness == 0) | (togetherness == 1)
     return togetherness
 
 
@@ -262,8 +263,12 @@ def rand_index(
     """
     n = len(V)
     a, b = 0, 0
-    edges = list(combinations(V, 2))
-    for e in edges:
-        a += check_pair_togetherness(e[0], e[1], X)
-        b += check_pair_togetherness(e[0], e[1], Y)
+    pairs = list(combinations(V, 2))
+    for pair in pairs:
+        togethernessX = check_pair_togetherness(pair[0], pair[1], X)
+        togethernessY = check_pair_togetherness(pair[0], pair[1], Y)
+        if togethernessX == 1 and togethernessY == 1:
+            a += 1
+        if togethernessX == 0 and togethernessY == 0:
+            b += 1
     return (2*(a+b))/(n*(n-1))
