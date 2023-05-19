@@ -13,6 +13,8 @@ from .utils import (
     tabular2network,
     compute_distances,
     compute_centroid,
+    rand_index,
+    check_pair_togetherness
 )
 
 
@@ -31,4 +33,6 @@ __all__ = [
     "euclidean_distance",
     "compute_distances",
     "compute_centroid",
+    "rand_index",
+    "check_pair_togetherness"
 ]

@@ -1,3 +1,4 @@
+from itertools import combinations
 from math import sqrt, log
 from heapq import heapify, heappush
 import numpy as np
@@ -233,3 +234,37 @@ def tabular2network(dataset_name: str) -> None:
                 dij = round(euclidean_distance(graph[i], graph[j]), 3)
                 file.write(f"{i+1} {j+1} {dij}\n")
     file.close()
+
+
+def check_pair_togetherness(u: int, v: int, partitions: List):
+    """Check if two pair of vertices are in the same
+    cluster given a clustering outputs
+    """
+    togetherness = 0
+    for cluster in partitions:
+        togetherness += int((u in cluster) & (v in cluster))
+    return togetherness
+
+
+def rand_index(
+        V: Union[list, set],
+        X: List[list],
+        Y: List[list]
+) -> float:
+    """Evaluate the rand index score
+
+    Args:
+        V (Union[list, set]): vertices
+        X (List[list]): a clustering of V
+        Y (List[list]): a clustering of V
+
+    Returns:
+        float: the rand index value
+    """
+    n = len(V)
+    a, b = 0, 0
+    edges = list(combinations(V, 2))
+    for e in edges:
+        a += check_pair_togetherness(e[0], e[1], X)
+        b += check_pair_togetherness(e[0], e[1], Y)
+    return (2*(a+b))/(n*(n-1))
