@@ -1,6 +1,6 @@
 from itertools import combinations
-from math import sqrt, log
 from heapq import heapify, heappush
+from math import sqrt, log
 import numpy as np
 from random import randrange
 from typing import List, Union
@@ -195,7 +195,17 @@ def MST(graph: List[list]) -> List[tuple]:
     return MST
 
 
-def partitioning_(x: List, k: int):
+def partitioning_(x: List, k: int) -> list:
+    """Partition a set of vertices into k
+    partitions
+
+    Args:
+        x (List): list of vertices
+        k (int): number of partitions to create
+
+    Return:
+        List: partion
+    """
     edges = x[1]
     out = []
     partitionId = randrange(0, k)
@@ -204,7 +214,17 @@ def partitioning_(x: List, k: int):
     return out
 
 
-def partitioning__(x: List, k: int):
+def partitioning__(x: List, k: int) -> List:
+    """Partition a set of vertices into k
+    partitions
+
+    Args:
+        x (List): list of vertices
+        k (int): number of partitions to create
+
+    Return:
+        List: partion
+    """
     edges = x[1]
     out = []
     partitionId = randrange(0, k)

@@ -4,8 +4,8 @@
 </h1>
 
 <p align="center">
-    The project leverages the distributed framework to implements Affinity Clustering, a hierarchical clustering method, at scale.
-    More detail can be found in the below Overleaf link. 
+    The project leverages the distributed framework to implement Affinity Clustering, a hierarchical clustering method, at scale.
+    More details can be found in the below Overleaf link. 
     <br/> 
 </p>
 
