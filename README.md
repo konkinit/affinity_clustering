@@ -10,7 +10,8 @@
 
 
 <p align="center">
-    <img alt="Licence" src="https://img.shields.io/bower/l/MI?style=for-the-badge"> 
+    <img alt="Licence" src="https://img.shields.io/bower/l/MI?style=for-the-badge">
+    <br/>
     <img alt="Repo size" src="https://img.shields.io/github/repo-size/konkinit/affinity_clustering?style=for-the-badge">
     <a href="https://www.python.org/downloads/release/python-3100/" target="_blank">
         <img src="https://img.shields.io/badge/python-3.10-blue.svg?style=for-the-badge" alt="Python Version"/>
@@ -39,6 +40,8 @@ pip install -r requirements.txt
 ```bash
 bash load-net-datasets.sh
 ```
+
+4. Run the notebook `./notebooks/experiments.ipynb`
 
 
 ## Datasets

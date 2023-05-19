@@ -116,7 +116,6 @@ def getEdge(edge_str: str) -> List:
 
 class Graph:
     """A graph instance"""
-
     def __init__(self, vertices: Union[set, list]) -> None:
         self.items = dict((v, [v]) for v in vertices)
         self.num_vertices = dict((v, 1) for v in vertices)
