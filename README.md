@@ -30,7 +30,7 @@
 
 ## Getting Started
 
-1. Get in an environment with `Spark` installed
+1. Get in an environment with `Spark` installed and configured
 
 2. Install dependencies
 ```bash
